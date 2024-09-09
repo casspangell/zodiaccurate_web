@@ -99,7 +99,7 @@ function sendHoroscopeEmail(horoscope, email) {
                 <img src="cid:zodiac_header" alt="Zodiaccurate Daily Guidance">
             </div>
             <div class="content">
-              <h3>${getDate}</h3>
+              <h3>${getDate()}</h3>
               <h2>Overview</h2>
               <p>${horoscopeModel.Overview?.content || horoscopeModel.Overview || 'No overview available'}</p>
 
@@ -145,7 +145,7 @@ function sendHoroscopeEmail(horoscope, email) {
     var aliases = GmailApp.getAliases();
 
     // Send the email with inline images
-    GmailApp.sendEmail(email, "Zodiaccurate Daily Guidance", "", {
+    GmailApp.sendEmail("casspangell@gmail.com", "Zodiaccurate Daily Guidance", "", {
         htmlBody: htmlBody,
         from: aliases[0],
         inlineImages: {

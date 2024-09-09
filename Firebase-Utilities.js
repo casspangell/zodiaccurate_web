@@ -157,7 +157,6 @@ function saveDayToFirebase(jsonData, uuid) {
   console.log("F saveDay: "+jsonData);
   
   // var payloadString = jsonData;//JSON.stringify(jsonData);
-  console.log("FU-RESPONSE CHAR COUNT: "+jsonData.length)
 
     var daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
     var today = new Date();

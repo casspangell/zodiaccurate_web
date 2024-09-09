@@ -238,9 +238,9 @@ function isValidJson(data) {
 }
 
 function getDate() {
-  var date = new Date();  // Get the current date
-  var timeZone = Session.getScriptTimeZone();  // Get the user's timezone
+  var date = new Date(); // Get the current date
+  var timeZone = Session.getScriptTimeZone(); // Get the user's timezone
   var formattedDate = Utilities.formatDate(date, timeZone, "MMMM d, yyyy");
-  Logger.log(formattedDate);  // Logs something like "September 6, 2024"
+  return formattedDate;
 }
 

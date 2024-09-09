@@ -74,7 +74,7 @@ function getChatGPTResponse(instructions, jsonData, uuid, emailAddress) {
       // Check if jsonModel is a valid JSON object and save/send it if it is
       if (responseData != null) {
           saveDayToFirebase(responseData, uuid); // Send JSON
-          // sendHoroscopeEmail(responseData, emailAddress);
+          sendHoroscopeEmail(responseData, emailAddress);
       } else {
           console.log("INVALID JSON MODEL: " + responseData); // Log invalid JSON
       }

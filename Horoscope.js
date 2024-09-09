@@ -139,22 +139,50 @@ function getFormattedHoroscopeString(key) {
 }
 
 function createHoroscopeJson(data) {
-  var parsedData = JSON.parse(data);
+    try {
+        // First, parse the main JSON response
+        var parsedData = JSON.parse(data);
 
-  var content = JSON.parse(parsedData.choices[0].message.content);
+        var contentString = parsedData.choices[0].message.content;
+        var content;
 
-  var horoscopeJson = {
-    "Horoscope": {
-      "Overview": content["Overview"],
-      "Career and Finances": content["Career and Finances"],
-      "Relationships": content["Relationships"],
-      "Parenting Guidance": content["Parenting Guidance"],
-      "Health": content["Health"],
-      "Personal Guidance": content["Personal Guidance"],
-      "Local Weather": content["Local Weather"]
+        // Try parsing the content normally first
+        try {
+            content = JSON.parse(contentString);
+        } catch (innerError) {
+            // If content parsing fails, handle the backticks case
+            Logger.log("Initial content parsing failed. Attempting to handle backticks...");
+            contentString = contentString.replace(/```json\n|```/g, '');
+            content = JSON.parse(contentString);
+        }
+
+        // Initialize the Horoscope object
+        var horoscopeJson = {
+            "Horoscope": {}
+        };
+
+        // Iterate over each key in the content object
+        for (var key in content) {
+            // Check if the content is a string (e.g., in the latest response)
+            if (typeof content[key] === 'string') {
+                // Add the content as a string
+                horoscopeJson.Horoscope[key.replace(/_/g, " ")] = {
+                    "content": content[key]
+                };
+            } else if (content[key].hasOwnProperty('title') && content[key].hasOwnProperty('content')) {
+                // If it's the original format with title and content
+                horoscopeJson.Horoscope[key.replace(/_/g, " ")] = {
+                    "title": content[key].title,
+                    "content": content[key].content
+                };
+            }
+        }
+
+        // Return the constructed Horoscope JSON object
+        return JSON.stringify(horoscopeJson, null, 2);
+    } catch (error) {
+        Logger.log("Error processing data: " + error.message);
+        return null;
     }
-  };
-  
-  // Return the JSON model as a string
-  return JSON.stringify(horoscopeJson, null, 2);
 }
+
