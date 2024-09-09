@@ -17,8 +17,7 @@ function saveEntryToFirebase(jsonData, uuid) {
 // SAVE single entry to secondary Firebase DB
 // UUID: email
 //
-function saveToFirebaseEmailCapture(jsonData, email) {
-    var uuid = sanitizeEmail(email);
+function saveToFirebaseEmailCapture(jsonData, uuid) {
     var firebaseUrl = firebase_BaseURL+"emailcapture/" + uuid + ".json";
 
     var options = {

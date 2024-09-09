@@ -47,7 +47,7 @@ function onFormSubmit(e) {
     jsonDataEmailCapture['Email Address'] = email;
     jsonDataEmailCapture['Name'] = clientName;
 
-    saveToFirebaseEmailCapture(jsonDataEmailCapture, email);
+    saveToFirebaseEmailCapture(jsonDataEmailCapture, uuid);
   }
 
     // Save first name and email to a separate Google Sheet
