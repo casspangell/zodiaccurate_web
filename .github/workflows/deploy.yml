@@ -1,0 +1,32 @@
+name: Deploy to Google Apps Script
+
+on:
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository
+      - uses: actions/checkout@v2
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # Specify Node.js version
+
+      # Install clasp globally
+      - run: npm install -g @google/clasp
+
+      # Authenticate clasp using the credentials stored in GitHub Secrets
+      - name: Authenticate clasp
+        run: |
+          echo "${{ secrets.CLASP_CREDENTIALS }}" > credentials.json
+          clasp login --creds credentials.json
+
+      # Push the project to Google Apps Script
+      - name: Deploy to Google Apps Script
+        run: clasp push
+

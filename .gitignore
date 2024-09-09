@@ -1,0 +1,10 @@
+# Ignore the Google OAuth client secret file
+client_secret_395278851412-rk6ckueqpl7bmooe9qv7vup63trapf8a.apps.googleusercontent.com.json
+
+# Ignore clasp authentication files
+.clasprc.json
+.clasp.json
+
+# Ignore macOS system files
+.DS_Store
+
