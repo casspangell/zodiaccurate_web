@@ -8,3 +8,4 @@ client_secret_395278851412-rk6ckueqpl7bmooe9qv7vup63trapf8a.apps.googleuserconte
 # Ignore macOS system files
 .DS_Store
 
+node_modules/
