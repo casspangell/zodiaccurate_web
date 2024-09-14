@@ -66,7 +66,7 @@ function getChatGPTResponse(instructions, jsonData, uuid, emailAddress) {
     var parsedResponse = JSON.parse(jsonResponse.getContentText());
 
     if (parsedResponse.choices && parsedResponse.choices.length > 0) {
-    
+
       console.log("RESPONSE DATA: "+JSON.stringify(parsedResponse));
 
       var responseData = createHoroscopeJson(JSON.stringify(parsedResponse));
@@ -89,7 +89,7 @@ function getChatGPTResponse(instructions, jsonData, uuid, emailAddress) {
 function parseJSONResponse(parsedResponse){
   console.log("Z-RETURN: "+parsedResponse.message.content);
   var horoscopeModel = parseHoroscopeResponseContent(parsedResponse.message.content);
-  console.log(horoscopeModel); 
+  console.log(horoscopeModel);
 
   // Check if usage data exists and log tokens
   if (parsedResponse.usage) {

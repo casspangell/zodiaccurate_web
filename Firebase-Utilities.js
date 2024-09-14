@@ -30,10 +30,10 @@ function saveToFirebaseEmailCapture(jsonData, uuid) {
 }
 
 //
-// GET single user from Firebase
+// GET single user from Firebase kilroy
 //
 function getUserDataFromFirebase(uuid) {
-    var firebaseUrl = firebase_BaseURL+"responses/" + uuid + ".json";
+    var firebaseUrl = firebase_BaseURL + "responses/" + uuid + ".json";
     var options = {
         "method": "get",
         "headers": {
@@ -45,9 +45,9 @@ function getUserDataFromFirebase(uuid) {
         var response = UrlFetchApp.fetch(firebaseUrl, options);
         var userData = JSON.parse(response.getContentText());
 
-        // Check if userData is null or not an object
-        if (!userData || typeof userData !== 'object') {
-            console.log("No data found for UUID: " + uuid + " or data is not an object.");
+        // Check if the response is empty or userData is null
+        if (!userData || Object.keys(userData).length === 0 || typeof userData !== 'object') {
+            console.log("No data found for UUID: " + uuid + " or data is not valid.");
             return null;  // Return null if no valid data is found
         }
 
@@ -61,6 +61,7 @@ function getUserDataFromFirebase(uuid) {
         return null;  // Return null if an error occurs
     }
 }
+
 
 //
 // GET last entry from Firebase
@@ -155,20 +156,27 @@ function getPreviousDayFromFirebase(uuid) {
 
 function saveDayToFirebase(jsonData, uuid) {
   console.log("F saveDay: "+jsonData);
-  
-  // var payloadString = jsonData;//JSON.stringify(jsonData);
 
-    var daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-    var today = new Date();
+    const daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const today = new Date();
     var dayOfWeek = daysOfWeek[today.getDay()];
     console.log("FU-Saving "+dayOfWeek);
+
+    // Format the date as "YYYY-MM-DD" for inclusion in the data model
+    var formattedDate = Utilities.formatDate(today, Session.getScriptTimeZone(), "yyyy-MM-dd");
+    console.log("FU-Saving horoscope for date: " + formattedDate);
+
+    var horoscopeDataWithDate = {
+        ...jsonData,
+        "date": formattedDate
+    };
 
     var firebaseUrl = firebase_BaseURL+"zodiac/" + uuid + "/" + dayOfWeek + ".json";
 
     var options = {
         "method": "PATCH", 
         "contentType": "application/json",
-        "payload": jsonData
+        "payload": JSON.stringify(horoscopeDataWithDate)
     };
 
     try {
