@@ -7,7 +7,7 @@ function saveEntryToFirebase(jsonData, uuid) {
     Logger.log("LOOKING FOR TIMEZONE: "+JSON.stringify(jsonData));
 
     //Save initial entry to the responses table
-    var firebaseUrl = firebase_BaseURL+"responses/" + uuid + ".json";
+    var firebaseUrl = firebase_BaseURL + "responses/" + uuid + ".json";
 
     var options = {
         "method": "put",
@@ -16,33 +16,34 @@ function saveEntryToFirebase(jsonData, uuid) {
     };
 
     var response = UrlFetchApp.fetch(firebaseUrl, options);
+    uuid = TEST_USER;
+    saveTimezoneToFirebase(uuid, jsonData);
 
-    var location = getLocationFromResponse(JSON.stringify(jsonData));
-    var timezoneData = getTimeZoneFromLocation(location); // Using the earlier function
-    if (!timezoneData) {
-        Logger.log("Could not retrieve timezone data.");
-        return;
-    }
+    // var location = getLocationFromResponse(JSON.stringify(jsonData));
+    // var timezoneData = getTimeZoneFromLocation(location);
+    // if (!timezoneData) {
+    //     timezoneData.timeZoneId = "America/Chicago"; //set to a default
+    //     timezoneData.gmtOffset = "GMT-5";
+    //     Logger.log("Could not retrieve timezone data.");
+    // }
+    //
+    // var firebaseZodiacUrl = firebase_BaseURL + "zodiac/" + uuid + ".json";
+    //
+    // var timezonePayload = {
+    //     "timezone": timezoneData.timeZoneId,
+    //     "gmtOffset": timezoneData.gmtOffset,
+    //     ...jsonData
+    // };
+    //
+    // var optionsZodiac = {
+    //     "method": "put",
+    //     "contentType": "application/json",
+    //     "payload": JSON.stringify(timezonePayload)
+    // };
 
-    // Prepare the payload for the zodiac table (you might want to send the entire jsonData along with the timezone)
-    var firebaseZodiacUrl = firebase_BaseURL + "zodiac/" + uuid + ".json";
 
-    var timezonePayload = {
-        "timezone": timezoneData.timeZoneId,
-        "gmtOffset": timezoneData.gmtOffset,
-        ...jsonData
-    };
 
-    var optionsZodiac = {
-        "method": "put",
-        "contentType": "application/json",
-        "payload": JSON.stringify(timezonePayload)
-    };
-
-    // Save to the zodiac table
-    var responseZodiac = UrlFetchApp.fetch(firebaseZodiacUrl, optionsZodiac);
-
-    Logger.log("Successfully saved to both responses and zodiac tables.");
+    // Logger.log("Successfully saved to both responses and zodiac tables.");
 }
 
 function getTimezoneFromResponse(firebaseResponse) {
@@ -196,6 +197,37 @@ function getPreviousDayFromFirebase(uuid) {
     } catch (e) {
 
         console.log("Error retrieving data from Firebase: " + e.message);
+        return null;
+    }
+}
+
+function saveTimezoneToFirebase(uuid, jsonData) {
+    var location = getLocationFromResponse(JSON.stringify(jsonData));
+    var timezoneData = getTimeZoneFromLocation(location);
+    if (!timezoneData) {
+        timezoneData.timeZoneId = "America/Chicago"; //set to a default
+        timezoneData.gmtOffset = "GMT-5";
+        Logger.log("Could not retrieve timezone data.");
+    }
+
+    var firebaseZodiacUrl = firebase_BaseURL + "timezone/" + timezoneData.gmtOffset + ".json";
+
+    var timezonePayload = {
+        [uuid]: timezoneData.gmtOffset,
+    };
+
+    var optionsZodiac = {
+        "method": "patch",
+        "contentType": "application/json",
+        "payload": JSON.stringify(timezonePayload)
+    };
+
+    try {
+        var response = UrlFetchApp.fetch(firebaseZodiacUrl, optionsZodiac);
+        Logger.log("Saved timezone data to Firebase.");
+    } catch (e) {
+
+        console.log("Error saving timezone data to Firebase: " + e.message);
         return null;
     }
 }
