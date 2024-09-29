@@ -82,68 +82,6 @@ function testTrimJsonFormatting() {
   Logger.log(trimmedResponse);  // Output: {"key": "value"}
 }
 
-
-// function extractJsonFromResponse(responseText) {
-//     console.log("HF-Extracting Json from response");
-
-//   if(isValidJson(responseText)) {
-//     console.log("HF- Response is valid json");
-//     return responseText;
-
-//   } else {
-//     console.log("HF- Response is not valid json using regex");
-//     try {
-//         // Convert responseText to string if it's not already
-//         if (typeof responseText !== 'string') {
-//             responseText = responseText.toString();
-//         }
-
-//         // Split the response by lines
-//         var lines = responseText.split('\n');
-
-//         // Initialize an object to store extracted sections
-//         var extractedJson = {
-//             "Overview": "",
-//             "Career and Finances": "",
-//             "Relationships": "",
-//             "Parenting Guidance": "",
-//             "Health": "",
-//             "Personal Guidance": "",
-//             "Local Weather": ""
-//         };
-
-//         // Regular expression to match each section heading
-//         var sectionRegex = /^(?:\d+\. )?\*\*(.*?):\*\*/;
-
-//         // Track the current section being processed
-//         var currentSection = null;
-
-//         lines.forEach(line => {
-//             var match = line.match(sectionRegex);
-//             if (match) {
-//                 // Update current section based on the heading found
-//                 currentSection = match[1];
-//             } else if (currentSection && line.trim() !== "") {
-//                 // Append text to the current section
-//                 extractedJson[currentSection] += line.trim() + " ";
-//             }
-//         });
-
-//         // Trim each section's content to clean up extra spaces
-//         Object.keys(extractedJson).forEach(key => {
-//             extractedJson[key] = extractedJson[key].trim();
-//         });
-
-//         return extractedJson;
-
-//     } catch (e) {
-//         console.log("Error parsing structured data from response: " + e.message);
-//         return null;
-//     }
-//   }
-// }
-
-
 function extractJsonFromText(text) {
     try {
         // Use regex to find and extract JSON object from the text
@@ -219,14 +157,6 @@ function parseHtmlToJson(response) {
   return jsonString;
 }
 
-function extractFirstParagraph(description) {
-  var firstParagraph = description.match(/<p>(.*?)<\/p>/);
-  if (firstParagraph && firstParagraph[1]) {
-    return firstParagraph[1].replace(/\n/g, ""); // Removes any newline characters
-  }
-  return null;
-}
-
 function isValidJson(data) {
   try {
     JSON.parse(data);
@@ -245,16 +175,11 @@ function getDate() {
 }
 
 function getLocationFromResponse(responseData) {
-  // Parse the responseData if it's a JSON string
   var data = JSON.parse(responseData);
-
-  // Retrieve the "Your Current Location" field
   var location = data["Your Current Location"];
-
-  // Log the location for debugging purposes
   Logger.log("Location: " + location);
 
-  return location;  // Return the location
+  return location;
 }
 
 function getTimeZoneFromLocation(location) {

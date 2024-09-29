@@ -1,12 +1,8 @@
 //
 // SAVE initial entry to Firebase
 //
-function saveEntryToFirebase(jsonData, uuid) {
-    uuid = TEST_USER;
-    jsonData = getUserDataFromFirebase(uuid);
-    Logger.log("LOOKING FOR TIMEZONE: "+JSON.stringify(jsonData));
-
-    //Save initial entry to the responses table
+function saveEntryToFirebase(jsonData, uuid, callback) {
+    Logger.log("Saving entry to Firebase...");
     var firebaseUrl = firebase_BaseURL + "responses/" + uuid + ".json";
 
     var options = {
@@ -15,49 +11,28 @@ function saveEntryToFirebase(jsonData, uuid) {
         "payload": JSON.stringify(jsonData)
     };
 
-    var response = UrlFetchApp.fetch(firebaseUrl, options);
-    uuid = TEST_USER;
-    saveTimezoneToFirebase(uuid, jsonData);
+    try {
+        var response = UrlFetchApp.fetch(firebaseUrl, options);
+        Logger.log("Entry saved: " + response.getContentText());
 
-    // var location = getLocationFromResponse(JSON.stringify(jsonData));
-    // var timezoneData = getTimeZoneFromLocation(location);
-    // if (!timezoneData) {
-    //     timezoneData.timeZoneId = "America/Chicago"; //set to a default
-    //     timezoneData.gmtOffset = "GMT-5";
-    //     Logger.log("Could not retrieve timezone data.");
-    // }
-    //
-    // var firebaseZodiacUrl = firebase_BaseURL + "zodiac/" + uuid + ".json";
-    //
-    // var timezonePayload = {
-    //     "timezone": timezoneData.timeZoneId,
-    //     "gmtOffset": timezoneData.gmtOffset,
-    //     ...jsonData
-    // };
-    //
-    // var optionsZodiac = {
-    //     "method": "put",
-    //     "contentType": "application/json",
-    //     "payload": JSON.stringify(timezonePayload)
-    // };
-
-
-
-    // Logger.log("Successfully saved to both responses and zodiac tables.");
-}
-
-function getTimezoneFromResponse(firebaseResponse) {
-    var parsedResponse = typeof firebaseResponse === 'string' ? JSON.parse(firebaseResponse) : firebaseResponse;
-    var currentLocation = parsedResponse["Your Current Location"];
-
-    if (currentLocation) {
-        Logger.log("Current Location: " + currentLocation);
-        return getTimeZoneFromLocation(currentLocation);
-    } else {
-        Logger.log("Current Location data not found.");
-        return null;
+        if (callback) callback();
+    } catch (e) {
+        Logger.log("Error saving entry to Firebase: " + e.message);
     }
 }
+
+// function getTimezoneFromResponse(firebaseResponse) {
+//     var parsedResponse = typeof firebaseResponse === 'string' ? JSON.parse(firebaseResponse) : firebaseResponse;
+//     var currentLocation = parsedResponse["Your Current Location"];
+//
+//     if (currentLocation) {
+//         Logger.log("Current Location: " + currentLocation);
+//         return getTimeZoneFromLocation(currentLocation);
+//     } else {
+//         Logger.log("Current Location data not found.");
+//         return null;
+//     }
+// }
 
 //
 // SAVE single entry to secondary Firebase DB
@@ -201,7 +176,8 @@ function getPreviousDayFromFirebase(uuid) {
     }
 }
 
-function saveTimezoneToFirebase(uuid, jsonData) {
+function saveTimezoneToFirebase(jsonData, uuid) {
+
     var location = getLocationFromResponse(JSON.stringify(jsonData));
     var timezoneData = getTimeZoneFromLocation(location);
     if (!timezoneData) {
@@ -210,10 +186,13 @@ function saveTimezoneToFirebase(uuid, jsonData) {
         Logger.log("Could not retrieve timezone data.");
     }
 
+    timezoneData.timeZoneId = "America/Chicago"; //set to a default
+    timezoneData.gmtOffset = "GMT-5";
+
     var firebaseZodiacUrl = firebase_BaseURL + "timezone/" + timezoneData.gmtOffset + ".json";
 
     var timezonePayload = {
-        [uuid]: timezoneData.gmtOffset,
+        [uuid]: uuid,
     };
 
     var optionsZodiac = {
@@ -226,7 +205,6 @@ function saveTimezoneToFirebase(uuid, jsonData) {
         var response = UrlFetchApp.fetch(firebaseZodiacUrl, optionsZodiac);
         Logger.log("Saved timezone data to Firebase.");
     } catch (e) {
-
         console.log("Error saving timezone data to Firebase: " + e.message);
         return null;
     }

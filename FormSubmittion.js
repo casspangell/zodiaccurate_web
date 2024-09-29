@@ -40,7 +40,9 @@ function onFormSubmit(e) {
     jsonData['Email Address'] = email;
     jsonData['UUID'] = uuid;
 
-    saveEntryToFirebase(jsonData, uuid);
+    saveEntryToFirebase(jsonData, uuid, function () {
+        saveTimezoneToFirebase(uuid, jsonData);
+    });
 
     // Save to Email Capture Database
     const jsonDataEmailCapture = {};
