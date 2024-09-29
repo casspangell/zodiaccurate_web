@@ -2,8 +2,8 @@
 // SAVE initial entry to Firebase
 //
 function saveEntryToFirebase(jsonData, uuid) {
-    // uuid = TEST_USER;
-    // jsonData = getUserDataFromFirebase(uuid);
+    uuid = TEST_USER;
+    jsonData = getUserDataFromFirebase(uuid);
     Logger.log("LOOKING FOR TIMEZONE: "+JSON.stringify(jsonData));
 
     //Save initial entry to the responses table
@@ -29,7 +29,8 @@ function saveEntryToFirebase(jsonData, uuid) {
 
     var timezonePayload = {
         "timezone": timezoneData.timeZoneId,
-        "gmtOffset": timezoneData.gmtOffset
+        "gmtOffset": timezoneData.gmtOffset,
+        ...jsonData
     };
 
     var optionsZodiac = {
