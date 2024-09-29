@@ -35,15 +35,15 @@ function onFormSubmit(e) {
     }
 
     // Save to Main Database
-    var uuid = generateUUID(editResponseUrl);
+    const uuid = generateUUID(editResponseUrl);
     jsonData['Edit Response URL'] = editResponseUrl;
     jsonData['Email Address'] = email;
     jsonData['UUID'] = uuid;
 
-    saveEntryToFirebase(jsonData, uuid); //Found in Firebase-Utilities.gs 
+    saveEntryToFirebase(jsonData, uuid);
 
     // Save to Email Capture Database
-    var jsonDataEmailCapture = {};
+    const jsonDataEmailCapture = {};
     jsonDataEmailCapture['Email Address'] = email;
     jsonDataEmailCapture['Name'] = clientName;
 
@@ -55,7 +55,10 @@ function onFormSubmit(e) {
     saveToPrivateSheet(clientName, email, privateSheet); //Found in Spreadsheet.gs
 
     // Send a welcome email calling from WelcomeEmail.gs
-    // sendWelcomeEmail(email, clientName, editResponseUrl); 
+    sendWelcomeEmail(email, clientName, editResponseUrl);
+
+    //Immediately do a pull on the database and send them a horoscope
+    prepareChatGPTResponse(uuid);
 
     // Schedule the generation of zodiac guidance based on time zone 
     // scheduleZodiacGuidanceGeneration(email, clientName, formResponse, location, editResponseUrl); // Located in Zodiac.gs

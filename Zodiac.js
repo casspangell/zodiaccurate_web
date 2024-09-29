@@ -1,10 +1,15 @@
 //                                         //
 // THIS IS WHAT YOU RUN TO TEST EVERYTHING //
 //                                         //
-function prepareChatGPTResponse(){
+function prepareChatGPTResponse(uuid){
   console.log("PREPARE CHATGPT");
   var jsonSinglePersonData = {};
-  jsonSinglePersonData = getUserDataFromFirebase("2_ABaOnudHJDNujgsYR5qZauZ8YyqNuNquPv0Zp4pbNguVavEEZxU2iXyEXdbu0XmZDOkNsII");
+
+  //This is a test user, you can change this:
+  jsonSinglePersonData = getUserDataFromFirebase(TEST_USER); //TODO: REMOVE ME
+  // jsonSinglePersonData = getUserDataFromFirebase(uuid);
+  //   console.log("PERSONAL DATA: "+jsonSinglePersonData);
+
   var emailAddress = "";
   var uuid = "";
   var editUrl = "";
@@ -69,12 +74,23 @@ function getChatGPTResponse(instructions, jsonData, uuid, emailAddress) {
 
       console.log("RESPONSE DATA: "+JSON.stringify(parsedResponse));
 
-      var responseData = createHoroscopeJson(JSON.stringify(parsedResponse));
+      var responseData = createHoroscopeJsonForDatabase(JSON.stringify(parsedResponse));
 
       // Check if jsonModel is a valid JSON object and save/send it if it is
       if (responseData != null) {
-          saveDayToFirebase(responseData, uuid); // Send JSON
-          sendHoroscopeEmail(responseData, emailAddress);
+
+          // // Safety check: Ensure 'choices' exists and is not empty
+          // if (responseData.choices && responseData.choices.length > 0) {
+          //     // Access the 'content' field from the first choice
+          //     const content = responseData.choices[0].message.content;
+          //
+          //     console.log("Extracted Content: ", content);
+          // } else {
+          //     console.log("Choices array is missing or empty.");
+          // }
+
+          saveDayToFirebase(parsedResponse, uuid);
+          // sendHoroscopeEmail(responseData, emailAddress);
       } else {
           console.log("INVALID JSON MODEL: " + responseData); // Log invalid JSON
       }
@@ -86,29 +102,12 @@ function getChatGPTResponse(instructions, jsonData, uuid, emailAddress) {
   }
 }
 
-function parseJSONResponse(parsedResponse){
-  console.log("Z-RETURN: "+parsedResponse.message.content);
-  var horoscopeModel = parseHoroscopeResponseContent(parsedResponse.message.content);
-  console.log(horoscopeModel);
-
-  // Check if usage data exists and log tokens
-  if (parsedResponse.usage) {
-      console.log("PROMPT TOKENS: " + parsedResponse.usage.prompt_tokens);
-      console.log("COMPLETION TOKENS: " + parsedResponse.usage.completion_tokens);
-      console.log("TOTAL TOKENS: " + parsedResponse.usage.total_tokens);
-  } else {
-      console.log("Usage data not available in the response.");
-  }
-
-  return horoscopeModel;
-}
-
 function getChatInstructions(jsonSinglePersonData, uuid) {
   console.log("Z-GET CHAT INSTRUCTIONS");
   var modifiers = getRandomModifiers();
   var getWeekData = getThreeDaysDataFromFirebase(uuid);
 
-  var prompt =  "You are a highly knowledgeable and empathetic astrology and personal guidance expert. Here is the user data:"+jsonSinglePersonData+"  Your task is to create a daily, personalized horoscope for [User's First Name], incorporating astrological insights, psychological principles, and practical advice. Use [User's First Name] sparingly to maintain a natural tone. Use the partners or childrens names thae same way. Each section should be comprehensive, offering detailed insights and practical guidance, while maintaining a tone that is casual, empathetic, friendly, and professional. Include actionable advice for every section, reflections on recent experiences, and specific recommendations tailored to the individual's circumstances. Ensure each category contains 3-4 sentences, if multiple kids, parenting advise up to 6 sentences. In offering guidance do not directly repeat the words used in their personalized answers. Ensure that each piece of advice or suggestion reflects the individual's unique circumstances." +
+  var prompt =  "You are a highly knowledgeable and empathetic astrology and personal guidance. Here is supplied json user data that will be used in creating the horoscope:"+JSON.stringify(jsonSinglePersonData)+"  Your task is to create a daily, personalized horoscope for this person, incorporating astrological insights, psychological principles, and practical advice. Use their name sparingly to maintain a natural tone. Use their partners or childrens names the same way. Each section should be comprehensive, offering detailed insights and practical guidance, while maintaining a tone that is casual, empathetic, friendly, and professional. Include actionable advice for every section, reflections on recent experiences, and specific recommendations tailored to the individual's circumstances. Ensure each category contains 3-4 sentences, if they have multiple kids, parenting advise can be up to 6 sentences. In offering guidance do not directly repeat the words used in their personalized answers. Ensure that each piece of advice or suggestion reflects the individual's unique circumstances." +
 `
 <!DOCTYPE html>
 <html lang="en">
@@ -119,6 +118,10 @@ function getChatInstructions(jsonSinglePersonData, uuid) {
         </div>
         <div class="content">
             <!-- Populate sections here -->
+            <div class="section">
+                <h2>Date</h2>
+                <p>Date being pulled</p>
+            </div>
             <div class="section">
                 <h2>General Outlook</h2>
                 <p>Today, Paul, the stars encourage you to embrace balance and harmony in both your personal and professional life...</p>
@@ -174,33 +177,33 @@ function getChatInstructions(jsonSinglePersonData, uuid) {
 }
 
 ///----------------
-function scheduleZodiacGuidanceGeneration(email, clientName, response, location, editResponseUrl) {
-  var now = new Date();
-  var timezone = getTimeZone(location);
-  var oneAMToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 1, 0, 0); // 1 AM today in user's local time
-
-  // Convert 1 AM to user's local time
-  oneAMToday = convertToTimeZone(oneAMToday, timezone);
-
-  // Check if it's past 1 AM today in user's local time, if so, set for 1 AM the next day
-  if (now.getTime() > oneAMToday.getTime()) {
-    oneAMToday.setDate(oneAMToday.getDate() + 1); // Set to 1 AM next day
-  }
-
-  var delayUntilOneAM = oneAMToday.getTime() - now.getTime();
-  Logger.log('Scheduling zodiac guidance for:', email, 'Delay:', delayUntilOneAM); // Debugging information
-  ScriptApp.newTrigger('generateAndSendZodiacGuidance')
-    .timeBased()
-    .after(delayUntilOneAM)
-    .create();
-
-  // Store the necessary data in script properties for later use
-  var properties = {
-    email: email,
-    firstName: clientName,
-    responses: JSON.stringify(response),
-    editResponseUrl: editResponseUrl,
-    timezone: timezone
-  };
-  PropertiesService.getScriptProperties().setProperties(properties);
-}
+// function scheduleZodiacGuidanceGeneration(email, clientName, response, location, editResponseUrl) {
+//   var now = new Date();
+//   var timezone = getTimeZone(location);
+//   var oneAMToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 1, 0, 0); // 1 AM today in user's local time
+//
+//   // Convert 1 AM to user's local time
+//   oneAMToday = convertToTimeZone(oneAMToday, timezone);
+//
+//   // Check if it's past 1 AM today in user's local time, if so, set for 1 AM the next day
+//   if (now.getTime() > oneAMToday.getTime()) {
+//     oneAMToday.setDate(oneAMToday.getDate() + 1); // Set to 1 AM next day
+//   }
+//
+//   var delayUntilOneAM = oneAMToday.getTime() - now.getTime();
+//   Logger.log('Scheduling zodiac guidance for:', email, 'Delay:', delayUntilOneAM); // Debugging information
+//   ScriptApp.newTrigger('generateAndSendZodiacGuidance')
+//     .timeBased()
+//     .after(delayUntilOneAM)
+//     .create();
+//
+//   // Store the necessary data in script properties for later use
+//   var properties = {
+//     email: email,
+//     firstName: clientName,
+//     responses: JSON.stringify(response),
+//     editResponseUrl: editResponseUrl,
+//     timezone: timezone
+//   };
+//   PropertiesService.getScriptProperties().setProperties(properties);
+// }

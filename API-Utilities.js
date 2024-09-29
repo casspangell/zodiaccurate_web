@@ -90,7 +90,7 @@ function getChatGPTApiKey() {
     // Decode the base64-encoded secret
     const decodedSecret = Utilities.newBlob(Utilities.base64Decode(secretData)).getDataAsString();
 
-    Logger.log("ChatGPT API Key retrieved: " + decodedSecret);
+    // Logger.log("ChatGPT API Key retrieved: " + decodedSecret);
     return decodedSecret;
   } else {
     throw new Error(`Failed to access secret: ${response.getContentText()}`);
@@ -105,4 +105,30 @@ function getOAuth2Service() {
     .setIssuer(PropertiesService.getScriptProperties().getProperty('client_email'))
     .setPropertyStore(PropertiesService.getScriptProperties())
     .setScope('https://www.googleapis.com/auth/spreadsheets');
+}
+
+function getGoogleAPIKey() {
+  const projectId = 'zodiaccurate';
+  var secretName = "projects/"+projectId+"/secrets/GoogleAPI/versions/latest";
+  var accessToken = ScriptApp.getOAuthToken();
+
+  // Secret Manager API URL
+  var url = "https://secretmanager.googleapis.com/v1/" + secretName + ":access";
+
+  var options = {
+    method: "GET",
+    headers: {
+      Authorization: "Bearer " + accessToken
+    }
+  };
+
+  var response = UrlFetchApp.fetch(url, options);
+  var jsonResponse = JSON.parse(response.getContentText());
+
+  // The API key will be in the 'payload.data' field (Base64 encoded)
+  var apiKey = Utilities.newBlob(Utilities.base64Decode(jsonResponse.payload.data)).getDataAsString();
+
+  Logger.log("API Key: " + apiKey);
+
+  return apiKey;
 }

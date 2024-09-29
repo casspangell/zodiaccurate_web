@@ -28,22 +28,32 @@ function sendWelcomeEmail(email, clientName, editResponseUrl) {
     });
 }
 
-function sendHoroscopeEmail(horoscope, email) {
-    console.log("SE-Sending Horoscope Email: " + horoscope);
-    var horoscopeModel = parseHoroscopeResponse(horoscope);
+function sendHoroscopeEmail() {
+    //Pull day from firebase
+    const horoscope = pullHoroscopeFromFirebase(TEST_USER);
 
-    var imageUrl = headerLogo;
-    var headerImageBlob = UrlFetchApp.fetch(imageUrl).getBlob();
+            console.log("RESPONSE DATA: " + JSON.stringify(horoscope));
 
-    var inlineImage = {
-        fileName: 'zodiac_header.png',
-        content: headerImageBlob,
-        mimeType: 'image/png',
-        contentId: 'zodiac_header'
-    };
+            var responseData = createHoroscopeJsonForEmail(JSON.stringify(horoscope));
 
-    // Define the HTML body of the email with dynamic content from horoscope JSON
-    var htmlBody = `
+            // Check if jsonModel is a valid JSON object and save/send it if it is
+            if (responseData != null) {
+                //Parse data
+                console.log("SE-Sending Horoscope Email: " + horoscope);
+                var horoscopeModel = parseHoroscopeResponse(horoscope);
+
+                var imageUrl = headerLogo;
+                var headerImageBlob = UrlFetchApp.fetch(imageUrl).getBlob();
+
+                var inlineImage = {
+                    fileName: 'zodiac_header.png',
+                    content: headerImageBlob,
+                    mimeType: 'image/png',
+                    contentId: 'zodiac_header'
+                };
+
+                // Define the HTML body of the email with dynamic content from horoscope JSON
+                var htmlBody = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -100,28 +110,52 @@ function sendHoroscopeEmail(horoscope, email) {
             </div>
             <div class="content">
               <h3>${getDate()}</h3>
+
+            ${horoscopeModel["Overview"]?.content || horoscopeModel["Overview"] || horoscopeModel["GeneralOverview"]?.content || horoscopeModel["GeneralOverview"] || horoscopeModel["GeneralOutlook"]?.content || horoscopeModel["GeneralOutlook"] ? `
               <h2>Overview</h2>
-              <p>${horoscopeModel.Overview?.content || horoscopeModel.Overview || 'No overview available'}</p>
+              <p>${horoscopeModel["Overview"]?.content || horoscopeModel["Overview"] || ' '}</p>
+              <p>${horoscopeModel["GeneralOverview"]?.content || horoscopeModel["GeneralOverview"] || ' '}</p>
+              <p>${horoscopeModel["GeneralOutlook"]?.content || horoscopeModel["GeneralOutlook"] || ' '}</p>
+             ` : ''}
 
+            ${horoscopeModel["PersonalGuidance"]?.content || horoscopeModel["PersonalGuidance"] ? `
               <h2>Personal Guidance</h2>
-              <p>${horoscopeModel.PersonalGuidance?.content || horoscopeModel.PersonalGuidance || 'No personal guidance available'}</p>
+              <p>${horoscopeModel["PersonalGuidance"]?.content || horoscopeModel["PersonalGuidance"]}</p>
+              ` : ''}
 
+            ${horoscopeModel["Relationships"]?.content || horoscopeModel["Relationships"] || horoscopeModel["FamilyAndRelationships"]?.content || horoscopeModel["FamilyAndRelationships"] ? `
               <h2>Relationships</h2>
-              <p>${horoscopeModel.Relationships?.content || horoscopeModel.Relationships || 'No relationships information available'}</p>
+              <p>${horoscopeModel["Relationships"]?.content || horoscopeModel["Relationships"] || ' '}</p>
+              <p>${horoscopeModel["FamilyAndRelationships"]?.content || horoscopeModel["FamilyAndRelationships"] || ' '}</p>
+             ` : ''}
 
+            ${horoscopeModel["CareerAndFinances"]?.content || horoscopeModel["CareerAndFinances"] ? `
               <h2>Career and Finances</h2>
-              <p>${horoscopeModel.CareerAndFinances?.content || horoscopeModel.CareerAndFinances || 'No career and finances information available'}</p>
+              <p>${horoscopeModel["CareerAndFinances"]?.content || horoscopeModel["CareerAndFinances"]}</p>
+              ` : ''}
 
+            ${horoscopeModel["ParentingGuidance"]?.content || horoscopeModel["ParentingGuidance"] ? `
               <h2>Parenting Guidance</h2>
-              <p>${horoscopeModel.ParentingGuidance?.content || horoscopeModel.ParentingGuidance || 'No parenting guidance available'}</p>
+              <p>${horoscopeModel["ParentingGuidance"]?.content || horoscopeModel["ParentingGuidance"]}</p>
+              ` : ''}
 
+            ${horoscopeModel["Health"]?.content || horoscopeModel["Health"] || horoscopeModel["HealthAndWellness"]?.content || horoscopeModel["HealthAndWellness"] || horoscopeModel["EmotionalAndMentalWellBeing"]?.content || horoscopeModel["EmotionalAndMentalWellBeing"] ? `
               <h2>Health</h2>
-              <p>${horoscopeModel.Health?.content || horoscopeModel.Health || 'No health information available'}</p>
+              <p>${horoscopeModel["Health"]?.content || horoscopeModel["Health"] || ' '}</p>
+              <p>${horoscopeModel["HealthAndWellness"]?.content || horoscopeModel["HealthAndWellness"] || ' '}</p>
+              <p>${horoscopeModel["EmotionalAndMentalWellBeing"]?.content || horoscopeModel["EmotionalAndMentalWellBeing"] || ' '}</p>
+             ` : ''}
 
+            ${horoscopeModel["PracticalTips"]?.content || horoscopeModel["PracticalTips"] ? `
+              <h2>Practical Tips</h2>
+              <p>${horoscopeModel["PracticalTips"]?.content || horoscopeModel["PracticalTips"]}</p>
+              ` : ''}
+
+            ${horoscopeModel["LocalWeather"]?.content || horoscopeModel["LocalWeather"] ? `
               <h2>Local Weather</h2>
-              <p>${horoscopeModel.LocalWeather?.content || horoscopeModel.LocalWeather || 'No local weather information available'}</p>
+              <p>${horoscopeModel["LocalWeather"]?.content || horoscopeModel["LocalWeather"]}</p>
           </div>
-
+            ` : ''}
 
             <div class="footer">
                 <p>&copy; 2024 Zodiaccurate. All rights reserved.</p>
@@ -131,27 +165,31 @@ function sendHoroscopeEmail(horoscope, email) {
     </html>
     `;
 
-    console.log("HTML EMAIL");
-    console.log(htmlBody);
+                console.log("HTML EMAIL");
+                console.log(htmlBody);
 
-    var maxSize = 20000; // Maximum allowed size for email body
+                var maxSize = 20000; // Maximum allowed size for email body
 
-    // Check if the content exceeds the size limit
-    if (htmlBody.length > maxSize) {
-        console.log("Content size exceeds limit. Trimming the content.");
-        htmlBody = htmlBody.substring(0, maxSize - 100) + "\n\n[Content trimmed due to size limits]";
-    }
+                // Check if the content exceeds the size limit
+                if (htmlBody.length > maxSize) {
+                    console.log("Content size exceeds limit. Trimming the content.");
+                    htmlBody = htmlBody.substring(0, maxSize - 100) + "\n\n[Content trimmed due to size limits]";
+                }
 
-    var aliases = GmailApp.getAliases();
+                var aliases = GmailApp.getAliases();
 
-    // Send the email with inline images
-    GmailApp.sendEmail("casspangell@gmail.com", "Zodiaccurate Daily Guidance", "", {
-        htmlBody: htmlBody,
-        from: aliases[0],
-        inlineImages: {
-            zodiac_header: inlineImage.content
-        }
-    });
+                // Send the email with inline images
+                GmailApp.sendEmail("casspangell@gmail.com", "Zodiaccurate Daily Guidance", "", {
+                    htmlBody: htmlBody,
+                    from: aliases[0],
+                    cc: "dahnworldhealer@yahoo.com",
+                    inlineImages: {
+                        zodiac_header: inlineImage.content
+                    }
+                });
+
+            }
+
 }
 
 

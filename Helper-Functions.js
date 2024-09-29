@@ -167,7 +167,7 @@ function createJsonModel(responseText) {
     responseText = String(responseText);
 
     var jsonModel = {};
-    
+
     // Split the response by double newlines to separate each section
     var sections = responseText.split(/\n\n+/);
 
@@ -243,4 +243,67 @@ function getDate() {
   var formattedDate = Utilities.formatDate(date, timeZone, "MMMM d, yyyy");
   return formattedDate;
 }
+
+function getLocationFromResponse(responseData) {
+  // Parse the responseData if it's a JSON string
+  var data = JSON.parse(responseData);
+
+  // Retrieve the "Your Current Location" field
+  var location = data["Your Current Location"];
+
+  // Log the location for debugging purposes
+  Logger.log("Location: " + location);
+
+  return location;  // Return the location
+}
+
+function getTimeZoneFromLocation(location) {
+  var geocodeApiUrl = "https://maps.googleapis.com/maps/api/geocode/json";
+  var timeZoneApiUrl = "https://maps.googleapis.com/maps/api/timezone/json";
+  var apiKey = getGoogleAPIKey();
+
+  // Step 1: Get latitude and longitude from the location string using Geocoding API
+  var geocodeUrl = geocodeApiUrl + "?address=" + encodeURIComponent(location) + "&key=" + apiKey;
+  var geocodeResponse = UrlFetchApp.fetch(geocodeUrl);
+  var geocodeData = JSON.parse(geocodeResponse.getContentText());
+
+  if (geocodeData.status !== "OK") {
+    Logger.log("Geocoding failed: " + geocodeData.status);
+    return null;
+  }
+
+  // Extract the latitude and longitude
+  var latitude = geocodeData.results[0].geometry.location.lat;
+  var longitude = geocodeData.results[0].geometry.location.lng;
+
+  // Step 2: Use the Time Zone API to get the timezone
+  var timestamp = Math.floor(Date.now() / 1000); // Current time in seconds
+  var timeZoneUrl = timeZoneApiUrl + "?location=" + latitude + "," + longitude + "&timestamp=" + timestamp + "&key=" + apiKey;
+  var timeZoneResponse = UrlFetchApp.fetch(timeZoneUrl);
+  var timeZoneData = JSON.parse(timeZoneResponse.getContentText());
+
+  if (timeZoneData.status !== "OK") {
+    Logger.log("Time Zone lookup failed: " + timeZoneData.status);
+    return null;
+  }
+
+  // Extract the timezone ID and UTC offsets
+  var timeZoneId = timeZoneData.timeZoneId;
+  var rawOffset = timeZoneData.rawOffset; // Offset from UTC in seconds (without DST)
+  var dstOffset = timeZoneData.dstOffset; // DST offset in seconds
+
+  // Calculate the total offset in hours (rawOffset + dstOffset)
+  var totalOffset = (rawOffset + dstOffset) / 3600; // Convert seconds to hours
+
+  // Format the GMT string
+  var gmtOffset = "GMT" + (totalOffset >= 0 ? "+" : "") + totalOffset;
+
+  Logger.log("Location: " + location + " | Time Zone: " + timeZoneId + " | GMT Offset: " + gmtOffset);
+
+  return {
+    timeZoneId: timeZoneId,
+    gmtOffset: gmtOffset
+  };
+}
+
 
