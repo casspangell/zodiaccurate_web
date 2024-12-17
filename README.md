@@ -32,7 +32,9 @@ npm install -g @google/clasp
 
 ### 3. Authenticate `clasp`
 
-Ensure you're logged into `clasp` with proper credentials. The credentials are stored in GitHub Secrets and are automatically used during GitHub Actions deployment. However, for local development, authenticate `clasp` manually:
+Ensure you're logged into `clasp` with proper credentials. The credentials are stored in GitHub Secrets and are automatically used during GitHub Actions deployment. To locate clasp creds, go to the Google Cloud Console - API and Services - Credentials - OAuth 2.0 Client IDs
+
+However, for local development, authenticate `clasp` manually:
 
 ```bash
 clasp login --creds path/to/credentials.json
