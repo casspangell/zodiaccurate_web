@@ -8,6 +8,7 @@ This project uses **GitHub** for version control and **Google Apps Script** for 
 - **Google Apps Script** is used for automating workflows between Google Sheets, Forms, and Firebase.
 - **clasp** (Command Line Apps Script Projects) is used to sync and deploy the local version of the Apps Script project to Google’s environment.
 - **GitHub Actions** is set up to manually trigger deployment to Google Apps Script via a workflow.
+- **ChatGPT** creds are located in Google Secret Manager and are accessed via API Keys in the portal https://platform.openai.com/api-keys.
 
 ---
 
