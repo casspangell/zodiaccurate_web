@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "@types/google-apps-script": "^1.0.83"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.1"
   }
 }

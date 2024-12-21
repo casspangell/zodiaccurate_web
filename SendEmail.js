@@ -30,7 +30,7 @@ function sendWelcomeEmail(email, clientName, editResponseUrl) {
 
 function sendHoroscopeEmail() {
     //Pull day from firebase
-    const horoscope = pullHoroscopeFromFirebase(TEST_USER);
+    const horoscope = pullHoroscopeFromFirebase(UUID);
 
             console.log("RESPONSE DATA: " + JSON.stringify(horoscope));
 

@@ -10,6 +10,9 @@ var formId = '1klvUzXkeMnSZ9Nz_Cb8_x3WCRsuyRNPKIgECFi83OXI'; // Google Form ID
 //Stripe
 var stripeLink = "https://billing.stripe.com/p/login/8wM03Y1ic3ROau4000";
 
-var firebase_BaseURL = "https://zodiaccurate-default-rtdb.firebaseio.com/";
+// var firebase_BaseURL = "https://zodiaccurate-default-rtdb.firebaseio.com/";
+// var firebase_BaseURL = "https://zodiaccurate-e9aaf-default-rtdb.firebaseio.com/";
+const FIREBASE_API_KEY = PropertiesService.getScriptProperties().getProperty("FIREBASE_API_KEY");
+const FIREBASE_URL = "https://zodiaccurate-e9aaf-default-rtdb.firebaseio.com";
 
-const TEST_USER = "2_ABaOnudBnBkwqlqnMUV9qS7zBUYoqPWaz1UyPeMW7GYOD2bPl2ZLYvQJ0UdU28kSvXtp_ZU";
+const TEST_USER = "2_ABaOnudHJDNujgsYR5qZauZ8YyqNuNquPv0Zp4pbNguVavEEZxU2iXyEXdbu0XmZDOkNsII";
