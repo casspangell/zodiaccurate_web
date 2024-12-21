@@ -1,27 +1,3 @@
-function addEntry() {
-    const path = "users"; // Path where you want to add the data
-
-    const data = {
-        name: "joe",
-        age: "21",
-    };
-
-    const url = `${FIREBASE_URL}/${path}.json?auth=${FIREBASE_API_KEY}`;
-    const options = {
-        method: "post", // Use "post" to add a new entry
-        contentType: "application/json",
-        payload: JSON.stringify(data),
-    };
-
-    const response = UrlFetchApp.fetch(url, options);
-    Logger.log(response.getContentText());
-}
-
-function debugServiceAccount() {
-    const clientEmail = PropertiesService.getScriptProperties().getProperty("client_email");
-    Logger.log("Client Email from Script Properties: " + clientEmail);
-}
-
 // Retrieve single user data from Firebase
 function getUserDataFromFirebase(uuid) {
     console.log("getUserDataFromFirebase ", uuid);
@@ -145,7 +121,6 @@ function getThreeDaysDataFromFirebase(uuid) {
     }
 }
 
-
 // Save timezone data to Firebase
 // function saveTimezoneToFirebase(jsonData, uuid) {
 //     const location = getLocationFromResponse(JSON.stringify(jsonData));
@@ -171,34 +146,6 @@ function getThreeDaysDataFromFirebase(uuid) {
 //         Logger.log("Saved timezone data to Firebase.");
 //     } catch (e) {
 //         Logger.log("Error saving timezone data to Firebase: " + e.message);
-//     }
-// }
-
-// Save data for the current day to Firebase
-// function saveDayToFirebase(jsonData, uuid) {
-//     console.log("saveDayToFirebase data: ", JSON.stringify(jsonData));
-//
-//     const daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-//     const today = new Date();
-//     const dayOfWeek = daysOfWeek[today.getDay()];
-//     const firebaseUrl = `${FIREBASE_URL}/zodiac/${uuid}/${dayOfWeek}.json?auth=${FIREBASE_API_KEY}`;
-//
-//     Logger.log("Saving data for day: " + dayOfWeek + " to URL: " + firebaseUrl);
-//
-//     const options = {
-//         method: "patch",
-//         contentType: "application/json",
-//         payload: JSON.stringify(jsonData),
-//         headers: {
-//             Authorization: `Bearer ${FIREBASE_API_KEY}`
-//         }
-//     };
-//
-//     try {
-//         const response = UrlFetchApp.fetch(firebaseUrl, { ...options, muteHttpExceptions: true });
-//         Logger.log("Data saved to Firebase: " + response.getContentText());
-//     } catch (e) {
-//         Logger.log("Error saving data to Firebase: " + e.message);
 //     }
 // }
 

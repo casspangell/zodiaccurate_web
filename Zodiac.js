@@ -103,18 +103,8 @@ function getChatInstructions(jsonSinglePersonData, uuid) {
     return prompt.trim();
 }
 
-// Helper function to validate JSON
-function isValidJson(response) {
-    try {
-        JSON.parse(response.getContentText());
-        return true;
-    } catch {
-        return false;
-    }
-}
-
 function saveDayToFirebase(jsonData, uuid) {
-    // Sanitize the keys in the JSON object
+
     const sanitizedData = sanitizeKeys(jsonData);
 
     Logger.log("saveDayToFirebase data: " + JSON.stringify(sanitizedData));
@@ -139,8 +129,3 @@ function saveDayToFirebase(jsonData, uuid) {
         Logger.log("Error saving horoscope to Firebase: " + e.message);
     }
 }
-
-// Function to generate a UUID from an edit URL
-// function generateUUID(editUrl) {
-//     return Utilities.getUuid(); // Example: Replace with your actual UUID logic if needed
-// }
