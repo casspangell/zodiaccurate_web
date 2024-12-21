@@ -1,4 +1,3 @@
-// Main function to prepare ChatGPT response
 function prepareChatGPTResponse(uuid) {
     console.log("PREPARE CHATGPT");
     uuid = TEST_USER;
@@ -28,6 +27,7 @@ function prepareChatGPTResponse(uuid) {
 
     // Generate ChatGPT prompt and fetch response
     const prompt = getChatInstructions(jsonSinglePersonData, uuid);
+    console.log("Prompt ", prompt);
     getChatGPTResponse(prompt, jsonSinglePersonData, uuid, emailAddress);
 }
 
@@ -44,7 +44,11 @@ function getChatGPTResponse(instructions, jsonData, uuid, emailAddress) {
         "messages": [
             {
                 "role": "system",
-                "content": "You are a helpful assistant that provides personalized horoscopes."
+                "content": "You are a highly knowledgeable and empathetic astrologer and personal guide."
+            },
+            {
+                "role": "user",
+                "content": "You are a highly knowledgeable and empathetic astrologer and personal guide. Your task is to generate a personalized daily horoscope in CSV format based on the provided data. Always provide the CSV content enclosed in a markdown code block with the csv tag (e.g., csv \"Column1\",\"Column2\",\"Column3\" \"Value1\",\"Value2\",\"Value3\" ). The first row must contain column headers, and subsequent rows must contain corresponding values. Do not include any text or explanation outside the markdown block. Ensure all values are properly quoted (e.g., \"Value\"), especially if they contain commas, line breaks, or special characters. Example format: csv \"Overview\",\"Career and Finances\",\"Relationships\",\"Parenting Guidance\",\"Health\",\"Personal Guidance\",\"Local Weather\" \"Today's insights...\",\"Career advice...\",\"Relationship advice...\",\"Parenting guidance...\",\"Health tips...\",\"Personal advice...\",\"Local weather forecast...\" . Ensure the format is consistent and adheres strictly to these guidelines."
             },
             {
                 "role": "user",
@@ -62,27 +66,18 @@ function getChatGPTResponse(instructions, jsonData, uuid, emailAddress) {
         "payload": JSON.stringify(payload)
     };
 
-    try {
-        const response = UrlFetchApp.fetch(url, options);
-        const jsonResponse = JSON.parse(response.getContentText());
+    const response = UrlFetchApp.fetch(url, options);
+    const jsonResponse = JSON.parse(response.getContentText());
 
-        console.log("GET CHATGPT RESPONSE: " + response.getContentText());
+    console.log("GET CHATGPT RESPONSE: " + response.getContentText());
+    const responseData = parseResponseToJson(jsonResponse);
 
-        if (jsonResponse.choices && jsonResponse.choices.length > 0) {
-            const responseData = createHoroscopeJsonForDatabase(JSON.stringify(jsonResponse));
-
-            if (responseData) {
-                saveDayToFirebase(jsonResponse, uuid); // Save to Firebase
+        if (responseData && responseData.length > 0) {
+                saveDayToFirebase(responseData, uuid);
                 // sendHoroscopeEmail(responseData, emailAddress); // Optional: Send horoscope via email
-            } else {
-                console.log("INVALID JSON MODEL: " + responseData);
-            }
         } else {
-            console.log("Unexpected API response structure: " + JSON.stringify(jsonResponse));
+            console.log("Unexpected API response structure: " + JSON.stringify(responseData));
         }
-    } catch (error) {
-        console.log("Error retrieving ChatGPT response: " + error.message);
-    }
 }
 
 // Function to construct ChatGPT instructions
@@ -93,8 +88,8 @@ function getChatInstructions(jsonSinglePersonData, uuid) {
     const getWeekData = getThreeDaysDataFromFirebase(uuid);
 
     const prompt = `
-        You are a highly knowledgeable and empathetic astrologer and personal guide. Here is user data: ${JSON.stringify(jsonSinglePersonData)}
-        Your task is to create a daily, personalized horoscope for this person, incorporating astrological insights and practical advice. Focus on these sections:
+        Here is user data: ${JSON.stringify(jsonSinglePersonData)}
+        Your task is to create a daily, personalized horoscope for this person, incorporating astrological insights and practical advice. Focus on these sections and generate a CSV file containing the following columns and data:
         - Overview: Emotional, mental, and spiritual insights (${modifiers.overview})
         - Career and Finances: Strategies for growth (${modifiers.careerAndFinances})
         - Relationships: Emotional connections (${modifiers.relationships})
@@ -118,29 +113,30 @@ function isValidJson(response) {
     }
 }
 
-// Example Firebase Save Function (for a day)
 function saveDayToFirebase(jsonData, uuid) {
+    // Sanitize the keys in the JSON object
+    const sanitizedData = sanitizeKeys(jsonData);
+
+    Logger.log("saveDayToFirebase data: " + JSON.stringify(sanitizedData));
+
     const daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
     const today = new Date();
     const dayOfWeek = daysOfWeek[today.getDay()];
-    const firebaseUrl = `${FIREBASE_URL}/zodiac/${uuid}/${dayOfWeek}.json`;
+    const firebaseUrl = `${FIREBASE_URL}/zodiac/${uuid}/${dayOfWeek}.json?auth=${FIREBASE_API_KEY}`;
 
     Logger.log("Saving horoscope for " + dayOfWeek + " to URL: " + firebaseUrl);
 
     const options = {
-        method: "patch",
+        method: "put",
         contentType: "application/json",
-        payload: JSON.stringify(jsonData),
-        headers: {
-            Authorization: `Bearer ${getFirebaseAuthToken()}`
-        }
+        payload: JSON.stringify(sanitizedData[0])
     };
 
     try {
-        const response = UrlFetchApp.fetch(firebaseUrl, options);
+        const response = UrlFetchApp.fetch(firebaseUrl, { ...options, muteHttpExceptions: true });
         Logger.log("Horoscope saved to Firebase: " + response.getContentText());
-    } catch (error) {
-        Logger.log("Error saving horoscope to Firebase: " + error.message);
+    } catch (e) {
+        Logger.log("Error saving horoscope to Firebase: " + e.message);
     }
 }
 

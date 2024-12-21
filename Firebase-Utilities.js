@@ -147,59 +147,60 @@ function getThreeDaysDataFromFirebase(uuid) {
 
 
 // Save timezone data to Firebase
-function saveTimezoneToFirebase(jsonData, uuid) {
-    const location = getLocationFromResponse(JSON.stringify(jsonData));
-    const timezoneData = getTimeZoneFromLocation(location) || {
-        timeZoneId: "America/Chicago",
-        gmtOffset: "GMT-5"
-    };
-
-    const firebaseUrl = `${FIREBASE_URL}/timezone/${timezoneData.gmtOffset}.json?auth=${FIREBASE_API_KEY}`;
-    const timezonePayload = { [uuid]: uuid };
-
-    const options = {
-        method: "patch",
-        contentType: "application/json",
-        payload: JSON.stringify(timezonePayload),
-        headers: {
-            Authorization: `Bearer ${FIREBASE_API_KEY}`
-        }
-    };
-
-    try {
-        const response = UrlFetchApp.fetch(firebaseUrl, options);
-        Logger.log("Saved timezone data to Firebase.");
-    } catch (e) {
-        Logger.log("Error saving timezone data to Firebase: " + e.message);
-    }
-}
+// function saveTimezoneToFirebase(jsonData, uuid) {
+//     const location = getLocationFromResponse(JSON.stringify(jsonData));
+//     const timezoneData = getTimeZoneFromLocation(location) || {
+//         timeZoneId: "America/Chicago",
+//         gmtOffset: "GMT-5"
+//     };
+//
+//     const firebaseUrl = `${FIREBASE_URL}/timezone/${timezoneData.gmtOffset}.json?auth=${FIREBASE_API_KEY}`;
+//     const timezonePayload = { [uuid]: uuid };
+//
+//     const options = {
+//         method: "patch",
+//         contentType: "application/json",
+//         payload: JSON.stringify(timezonePayload),
+//         headers: {
+//             Authorization: `Bearer ${FIREBASE_API_KEY}`
+//         }
+//     };
+//
+//     try {
+//         const response = UrlFetchApp.fetch(firebaseUrl, options);
+//         Logger.log("Saved timezone data to Firebase.");
+//     } catch (e) {
+//         Logger.log("Error saving timezone data to Firebase: " + e.message);
+//     }
+// }
 
 // Save data for the current day to Firebase
-// Save data for the current day to Firebase
-function saveDayToFirebase(jsonData, uuid) {
-    const daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-    const today = new Date();
-    const dayOfWeek = daysOfWeek[today.getDay()];
-    const firebaseUrl = `${FIREBASE_URL}/zodiac/${uuid}/${dayOfWeek}.json?auth=${FIREBASE_API_KEY}`;
-
-    Logger.log("Saving data for day: " + dayOfWeek + " to URL: " + firebaseUrl);
-
-    const options = {
-        method: "patch",
-        contentType: "application/json",
-        payload: JSON.stringify(jsonData),
-        headers: {
-            Authorization: `Bearer ${FIREBASE_API_KEY}`
-        }
-    };
-
-    try {
-        const response = UrlFetchApp.fetch(firebaseUrl, { ...options, muteHttpExceptions: true });
-        Logger.log("Data saved to Firebase: " + response.getContentText());
-    } catch (e) {
-        Logger.log("Error saving data to Firebase: " + e.message);
-    }
-}
+// function saveDayToFirebase(jsonData, uuid) {
+//     console.log("saveDayToFirebase data: ", JSON.stringify(jsonData));
+//
+//     const daysOfWeek = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+//     const today = new Date();
+//     const dayOfWeek = daysOfWeek[today.getDay()];
+//     const firebaseUrl = `${FIREBASE_URL}/zodiac/${uuid}/${dayOfWeek}.json?auth=${FIREBASE_API_KEY}`;
+//
+//     Logger.log("Saving data for day: " + dayOfWeek + " to URL: " + firebaseUrl);
+//
+//     const options = {
+//         method: "patch",
+//         contentType: "application/json",
+//         payload: JSON.stringify(jsonData),
+//         headers: {
+//             Authorization: `Bearer ${FIREBASE_API_KEY}`
+//         }
+//     };
+//
+//     try {
+//         const response = UrlFetchApp.fetch(firebaseUrl, { ...options, muteHttpExceptions: true });
+//         Logger.log("Data saved to Firebase: " + response.getContentText());
+//     } catch (e) {
+//         Logger.log("Error saving data to Firebase: " + e.message);
+//     }
+// }
 
 // Retrieve previous day's data from Firebase
 function getPreviousDayFromFirebase(uuid) {

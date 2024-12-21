@@ -75,97 +75,106 @@ function trimJsonFormatting(responseData) {
   return responseData;
 }
 
-// Example usage:
-function testTrimJsonFormatting() {
-  const response = "```json\n{\"key\": \"value\"}\n```";
-  const trimmedResponse = trimJsonFormatting(response);
-  Logger.log(trimmedResponse);  // Output: {"key": "value"}
+function sanitizeKeys(data) {
+  const sanitizedObject = {};
+  Object.keys(data).forEach(key => {
+    // Replace invalid characters (e.g., spaces) with underscores
+    const sanitizedKey = key.replace(/[^a-zA-Z0-9_]/g, "_");
+    sanitizedObject[sanitizedKey] = data[key];
+  });
+  return sanitizedObject;
 }
 
-function extractJsonFromText(text) {
-    try {
-        // Use regex to find and extract JSON object from the text
-        const jsonMatch = text.match(/{[\s\S]*}/);
-        
-        if (jsonMatch && jsonMatch.length > 0) {
-            // Parse the extracted string as JSON
-            const jsonObject = JSON.parse(jsonMatch[0]);
-            return jsonObject;
-        } else {
-            return(text);
-        }
-    } catch (error) {
-        console.error("Error parsing JSON:", error);
-        return null;
-    }
-}
+// function testTrimJsonFormatting() {
+//   const response = "```json\n{\"key\": \"value\"}\n```";
+//   const trimmedResponse = trimJsonFormatting(response);
+//   Logger.log(trimmedResponse);  // Output: {"key": "value"}
+// }
+//
+// function extractJsonFromText(text) {
+//     try {
+//         // Use regex to find and extract JSON object from the text
+//         const jsonMatch = text.match(/{[\s\S]*}/);
+//
+//         if (jsonMatch && jsonMatch.length > 0) {
+//             // Parse the extracted string as JSON
+//             const jsonObject = JSON.parse(jsonMatch[0]);
+//             return jsonObject;
+//         } else {
+//             return(text);
+//         }
+//     } catch (error) {
+//         console.error("Error parsing JSON:", error);
+//         return null;
+//     }
+// }
 
-function createJsonModel(responseText) {
-  console.log("HF- DATA COMING IN TO BE TURNED INTO JSON: ", responseText);
-    responseText = String(responseText);
+// function createJsonModel(responseText) {
+//   console.log("HF- DATA COMING IN TO BE TURNED INTO JSON: ", responseText);
+//     responseText = String(responseText);
+//
+//     var jsonModel = {};
+//
+//     // Split the response by double newlines to separate each section
+//     var sections = responseText.split(/\n\n+/);
+//
+//     sections.forEach(function(section) {
+//         // Find the first newline to split the header and content
+//         var firstLineBreak = section.indexOf('\n');
+//         if (firstLineBreak !== -1) {
+//             // Extract the header and content
+//             var header = section.substring(0, firstLineBreak).replace(/\*\*/g, '').trim(); // Remove asterisks and trim whitespace
+//             var content = section.substring(firstLineBreak + 1).trim(); // Extract the content
+//
+//             // Add to the JSON model
+//             jsonModel[header] = content;
+//         }
+//     });
+//
+//     return jsonModel;
+// }
 
-    var jsonModel = {};
-
-    // Split the response by double newlines to separate each section
-    var sections = responseText.split(/\n\n+/);
-
-    sections.forEach(function(section) {
-        // Find the first newline to split the header and content
-        var firstLineBreak = section.indexOf('\n');
-        if (firstLineBreak !== -1) {
-            // Extract the header and content
-            var header = section.substring(0, firstLineBreak).replace(/\*\*/g, '').trim(); // Remove asterisks and trim whitespace
-            var content = section.substring(firstLineBreak + 1).trim(); // Extract the content
-
-            // Add to the JSON model
-            jsonModel[header] = content;
-        }
-    });
-
-    return jsonModel;
-}
-
-function parseHtmlToJson(response) {
-  // Extract the content from the response
-  var htmlContent = response; 
-  
-  // Regular expression to match headers and their associated content
-  var sectionRegex = /<h2>(.*?)<\/h2>\s*<p>(.*?)<\/p>/g;
-  var weatherRegex = /<div class="quote">\s*<p>(.*?)<\/p>/;
-
-  // Object to hold the parsed sections
-  var parsedSections = {};
-  var match;
-
-  // Loop through all matches of headers and paragraphs
-  while ((match = sectionRegex.exec(htmlContent)) !== null) {
-    var header = match[1].trim(); // Extract the header text
-    var content = match[2].trim(); // Extract the paragraph text
-    parsedSections[header] = content; // Add to the JSON object
-  }
-
-  // Extract the weather section separately
-  var weatherMatch = weatherRegex.exec(htmlContent);
-  if (weatherMatch) {
-    parsedSections["Local Weather"] = weatherMatch[1].trim();
-  }
-
-  // Convert the parsed sections object to a JSON string
-  var jsonString = JSON.stringify(parsedSections, null, 2);
-  Logger.log(jsonString);
-
-  return jsonString;
-}
-
-function isValidJson(data) {
-  try {
-    JSON.parse(data);
-    return true;
-  } catch (e) {
-    Logger.log("Invalid JSON: " + e.message);
-    return false;
-  }
-}
+// function parseHtmlToJson(response) {
+//   // Extract the content from the response
+//   var htmlContent = response;
+//
+//   // Regular expression to match headers and their associated content
+//   var sectionRegex = /<h2>(.*?)<\/h2>\s*<p>(.*?)<\/p>/g;
+//   var weatherRegex = /<div class="quote">\s*<p>(.*?)<\/p>/;
+//
+//   // Object to hold the parsed sections
+//   var parsedSections = {};
+//   var match;
+//
+//   // Loop through all matches of headers and paragraphs
+//   while ((match = sectionRegex.exec(htmlContent)) !== null) {
+//     var header = match[1].trim(); // Extract the header text
+//     var content = match[2].trim(); // Extract the paragraph text
+//     parsedSections[header] = content; // Add to the JSON object
+//   }
+//
+//   // Extract the weather section separately
+//   var weatherMatch = weatherRegex.exec(htmlContent);
+//   if (weatherMatch) {
+//     parsedSections["Local Weather"] = weatherMatch[1].trim();
+//   }
+//
+//   // Convert the parsed sections object to a JSON string
+//   var jsonString = JSON.stringify(parsedSections, null, 2);
+//   Logger.log(jsonString);
+//
+//   return jsonString;
+// }
+//
+// function isValidJson(data) {
+//   try {
+//     JSON.parse(data);
+//     return true;
+//   } catch (e) {
+//     Logger.log("Invalid JSON: " + e.message);
+//     return false;
+//   }
+// }
 
 function getDate() {
   var date = new Date(); // Get the current date

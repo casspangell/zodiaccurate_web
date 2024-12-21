@@ -130,83 +130,83 @@ function parseHoroscopeResponse(jsonResponse) {
 //     return horoscopeString;
 // }
 
-function getFormattedHoroscopeString(key) {
-  return HoroscopeStringEnum[getEnumValue(key)] || key; // Return the formatted string or the key if not found
-}
+// function getFormattedHoroscopeString(key) {
+//   return HoroscopeStringEnum[getEnumValue(key)] || key; // Return the formatted string or the key if not found
+// }
 
-function createHoroscopeJsonForDatabase(data) {
-    try {
-        // First, parse the main JSON response
-        var parsedData = JSON.parse(data);
+// function createHoroscopeJsonForDatabase(data) {
+//     try {
+//         // First, parse the main JSON response
+//         var parsedData = JSON.parse(data);
+//
+//         var contentString = parsedData.choices[0].message.content;
+//         var content;
+//
+//         // Try parsing the content normally first
+//         try {
+//             let newContentString = contentString.replace(/```json\n|```/g, '');
+//             let cleanedData = newContentString.replace(/\\n/g, '\n').replace(/\\"/g, '"');
+//             content = JSON.parse(cleanedData);
+//         } catch (innerError) {
+//             // If content parsing fails, handle the backticks case
+//             Logger.log("Initial content parsing failed. Attempting to handle backticks...");
+//             contentString = contentString.replace(/```json\n|```/g, '');
+//             var cleanedData = contentString.replace(/\\n/g, '\n').replace(/\\"/g, '"');
+//             content = JSON.parse(cleanedData);
+//         }
+//
+//         // Initialize the Horoscope object
+//         var horoscopeJson = {
+//             "Horoscope": {}
+//         };
+//
+//         // Iterate over each key in the content object
+//         for (var key in content) {
+//             // Check if the content is a string (e.g., in the latest response)
+//             if (typeof content[key] === 'string') {
+//                 horoscopeJson.Horoscope[key.replace(/_/g, " ")] = {
+//                     "content": content[key]
+//                 };
+//             } else if ((content[key].hasOwnProperty('title') || content[key].hasOwnProperty('Title')) &&
+//                 (content[key].hasOwnProperty('content') || content[key].hasOwnProperty('Content'))) {
+//
+//                 horoscopeJson.Horoscope[key.replace(/_/g, " ")] = {
+//                     "title": content[key].title || content[key].Title,
+//                     "content": content[key].content || content[key].Content
+//                 };
+//             }
+//         }
+//
+//         // Return the constructed Horoscope JSON object
+//         return JSON.stringify(horoscopeJson, null, 2);
+//     } catch (error) {
+//         Logger.log("Error processing data: " + error.message);
+//         return null;
+//     }
+// }
 
-        var contentString = parsedData.choices[0].message.content;
-        var content;
-
-        // Try parsing the content normally first
-        try {
-            let newContentString = contentString.replace(/```json\n|```/g, '');
-            let cleanedData = newContentString.replace(/\\n/g, '\n').replace(/\\"/g, '"');
-            content = JSON.parse(cleanedData);
-        } catch (innerError) {
-            // If content parsing fails, handle the backticks case
-            Logger.log("Initial content parsing failed. Attempting to handle backticks...");
-            contentString = contentString.replace(/```json\n|```/g, '');
-            var cleanedData = contentString.replace(/\\n/g, '\n').replace(/\\"/g, '"');
-            content = JSON.parse(cleanedData);
-        }
-
-        // Initialize the Horoscope object
-        var horoscopeJson = {
-            "Horoscope": {}
-        };
-
-        // Iterate over each key in the content object
-        for (var key in content) {
-            // Check if the content is a string (e.g., in the latest response)
-            if (typeof content[key] === 'string') {
-                horoscopeJson.Horoscope[key.replace(/_/g, " ")] = {
-                    "content": content[key]
-                };
-            } else if ((content[key].hasOwnProperty('title') || content[key].hasOwnProperty('Title')) &&
-                (content[key].hasOwnProperty('content') || content[key].hasOwnProperty('Content'))) {
-
-                horoscopeJson.Horoscope[key.replace(/_/g, " ")] = {
-                    "title": content[key].title || content[key].Title,
-                    "content": content[key].content || content[key].Content
-                };
-            }
-        }
-
-        // Return the constructed Horoscope JSON object
-        return JSON.stringify(horoscopeJson, null, 2);
-    } catch (error) {
-        Logger.log("Error processing data: " + error.message);
-        return null;
-    }
-}
-
-function createHoroscopeJsonForEmail(data) {
-    try {
-        var content = JSON.parse(data);
-
-        var horoscopeJson = {
-            "Horoscope": {}
-        };
-
-        for (var key in content) {
-            if (content.hasOwnProperty(key)) {
-                // Assume content is a string since that's the format of your data
-                horoscopeJson.Horoscope[key.replace(/_/g, " ")] = {
-                    "content": content[key]
-                };
-            }
-        }
-
-        return JSON.stringify(horoscopeJson, null, 2);
-    } catch (error) {
-        Logger.log("Error processing data: " + error.message);
-        return null;
-    }
-}
+// function createHoroscopeJsonForEmail(data) {
+//     try {
+//         var content = JSON.parse(data);
+//
+//         var horoscopeJson = {
+//             "Horoscope": {}
+//         };
+//
+//         for (var key in content) {
+//             if (content.hasOwnProperty(key)) {
+//                 // Assume content is a string since that's the format of your data
+//                 horoscopeJson.Horoscope[key.replace(/_/g, " ")] = {
+//                     "content": content[key]
+//                 };
+//             }
+//         }
+//
+//         return JSON.stringify(horoscopeJson, null, 2);
+//     } catch (error) {
+//         Logger.log("Error processing data: " + error.message);
+//         return null;
+//     }
+// }
 
 
