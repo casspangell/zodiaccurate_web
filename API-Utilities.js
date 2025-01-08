@@ -34,14 +34,14 @@ function getChatGPTApiKey() {
 }
 
 // Test service account setup
-function testServiceAccount() {
-  const service = getOAuth2Service();
-  if (!service.hasAccess()) {
-    Logger.log("Service account authentication failed. Reauthorize the app.");
-  } else {
-    Logger.log("Service account authenticated successfully.");
-  }
-}
+// function testServiceAccount() {
+//   const service = getOAuth2Service();
+//   if (!service.hasAccess()) {
+//     Logger.log("Service account authentication failed. Reauthorize the app.");
+//   } else {
+//     Logger.log("Service account authenticated successfully.");
+//   }
+// }
 
 // Configure OAuth2 service for Google APIs
 function getOAuth2Service() {
